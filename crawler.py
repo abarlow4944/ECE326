@@ -68,7 +68,7 @@ class crawler(object):
         self._doc_id_cache = {} # maps url:doc_id
         self._word_id_cache = {} # maps word:word_id
 
-        # ADDITIONS:
+        # **NEW** ADDITIONS:
         self._doc_index = {} # Document index. doc_id: url, title, first 3 lines (desc)
         self._lexicon = {} # word_id:word
         self._inverted_index = {} # word_id:set(doc_ids)
@@ -185,13 +185,6 @@ class crawler(object):
         doc_id = self._mock_insert_document(url)
         self._doc_id_cache[url] = doc_id
 
-        # insert url into doc_index
-        self._doc_index[doc_id] = {
-            "url": url,
-            "title":"",
-            "description":""
-        }
-
         return doc_id
 
     def _fix_url(self, curr_url, rel):
@@ -215,7 +208,6 @@ class crawler(object):
     def _visit_title(self, elem):
         """Called when visiting the <title> tag."""
         title_text = self._text_of(elem).strip()
-        print("document title=" + repr(title_text))
 
         # TODO update document title for document id self._curr_doc_id
 
@@ -307,12 +299,12 @@ class crawler(object):
 
                 # ignore this tag and everything in it
                 if tag_name in self._ignored_tags:
-                    if tag.nextSibling:
-                        tag = NextTag(tag.nextSibling)
+                    if tag.next_sibling:
+                        tag = NextTag(tag.next_sibling)
                     else:
                         self._exit[stack[-1].name.lower()](stack[-1])
                         stack.pop()
-                        tag = NextTag(tag.parent.nextSibling)
+                        tag = NextTag(tag.parent.next_sibling)
 
                     continue
 
@@ -353,19 +345,63 @@ class crawler(object):
                 self._curr_url = url
                 self._curr_doc_id = doc_id
                 self._font_size = 0
-                self._curr_words = []
-                self._index_document(soup)
+                self._curr_words = [] # all words on the current doc
+                self._index_document(soup) # work through HTML and collect words
                 self._add_words_to_document()
                 print("    url=" + repr(self._curr_url))
 
+                # **NEW** 
+                # populate inverted index (word_id:set(doc_ids))
+                for word_id, font_size in self._curr_words:
+                    if word_id not in self._inverted_index:
+                        self._inverted_index[word_id] = set()
+                    self._inverted_index[word_id].add(self._curr_doc_id)
+                
+                # populate doc_index (doc_id: url, title, first 3 lines (desc))
+                if doc_id not in self._doc_index:
+                    self._doc_index[doc_id] = {
+                        "url": url,
+                        "title":"",
+                        "description":""
+                    }
+
+                    if soup.title.text: # add the title if it exists
+                        self._doc_index[doc_id]["title"] = soup.title.text
+
+                    # get the first three lines of text as the description
+                    all_text = soup.get_text()
+                    lines = all_text.splitlines()
+                    three_lines = []
+
+                    for line in lines:
+                        if len(line.strip()) and len(three_lines) < 3: # there is text content on this line
+                            three_lines.append(line.strip())
+
+                    self._doc_index[doc_id]["description"] = three_lines
 
             except Exception as e:
-                print(e)
+                print("ERROR:" + e)
                 pass
             finally:
                 if socket:
                     socket.close()
 
+    # **NEW** ADDITIONS:
+    def get_inverted_index(self): # returns inverted index (key: word_id, value: list of doc_ids)
+        return self._inverted_index;
+
+    def get_resolved_inverted_index(self): # returns human-readable version of inverted index (key: word, value: list of urls)
+        resolved_inverted_index = {}
+
+        for word_id, doc_ids in self._inverted_index.items():
+            urls = set()
+
+            for doc_id in doc_ids:
+                urls.add(self._doc_index[doc_id]["url"])
+
+            resolved_inverted_index[self._lexicon[word_id]] = urls
+        
+        return resolved_inverted_index
 
 if __name__ == "__main__":
     bot = crawler(None, "urls.txt")
