@@ -25,8 +25,6 @@ def formHandler():
         keyword_dict.update(keyword_list)
         global_keyword_dict.update(keyword_list)
 
-    print(type(global_keyword_dict))
-
     return template('index', keyword_dict = keyword_dict, top_20 = global_keyword_dict.most_common(20))
 
 
