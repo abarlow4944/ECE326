@@ -16,14 +16,28 @@ class TestCrawler(unittest.TestCase):
         with open("urls.txt", "w") as f:
             f.write("https://example.com/\n")
 
-        # Act: crawl one level deep
+        # crawl one level deep
         self.bot.crawl(depth=0)
 
-        # Assert: document index contains the page
+        # check doc_index
         doc_id = 1
-        self.assertEqual(self.bot._doc_index[doc_id]["url"], 'https://example.com/')
-        self.assertEqual(self.bot._doc_index[doc_id]["title"], "Example Domain")
-        self.assertEqual(len(self.bot._doc_index[doc_id]["description"]), 3)
+        self.assertEqual(self.bot._doc_index[doc_id]["url"], 'https://example.com/', "doc_index does not have the correct URL")
+        self.assertEqual(self.bot._doc_index[doc_id]["title"], "Example Domain", "doc_index does not have the correct title")
+        self.assertEqual(len(self.bot._doc_index[doc_id]["description"]), 3, "doc_index does not have three lines")
+
+        # check lexicon
+        self.assertGreater(len(self.bot._lexicon), 0, "lexicon should not be empty")
+        
+        # check inverted_index
+        self.assertGreater(len(self.bot._inverted_index), 0, "inverted_index should not be empty")
+
+        for word_id, doc_ids in self.bot._inverted_index.items():
+            self.assertIn(1, doc_ids, "Correct doc_id not given from word_id")
+
+    # def test_get_resolved_inverted_index:
+
+    #def test_get_inverted_index:
+
 
 
        

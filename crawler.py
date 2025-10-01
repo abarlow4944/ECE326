@@ -388,7 +388,7 @@ class crawler(object):
 
     # **NEW** ADDITIONS:
     def get_inverted_index(self): # returns inverted index (key: word_id, value: list of doc_ids)
-        return self._inverted_index;
+        return self._inverted_index
 
     def get_resolved_inverted_index(self): # returns human-readable version of inverted index (key: word, value: list of urls)
         resolved_inverted_index = {}
