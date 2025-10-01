@@ -1,1 +1,3 @@
 bottle
+urllib3
+bs4
