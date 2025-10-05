@@ -8,7 +8,6 @@ import requests
 
 class TestCrawler(unittest.TestCase):
     def setUp(self):
-        # urls.txt can be empty for these tests
         self.bot = crawler(None, "urls.txt")
 
     def test_crawl_example_com(self):
@@ -31,12 +30,15 @@ class TestCrawler(unittest.TestCase):
         # check inverted_index
         self.assertGreater(len(self.bot._inverted_index), 0, "inverted_index should not be empty")
 
+        # check that the doc_ids in inverted_index are correct
         for word_id, doc_ids in self.bot._inverted_index.items():
             self.assertIn(1, doc_ids, "Correct doc_id not given from word_id")
 
     # def test_get_resolved_inverted_index:
 
     #def test_get_inverted_index:
+
+    # more tests that check crawler (more depth etc):
 
 
 

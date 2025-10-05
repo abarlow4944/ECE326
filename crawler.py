@@ -168,6 +168,7 @@ class crawler(object):
         word_id = self._mock_insert_word(word)
         self._word_id_cache[word] = word_id
 
+        # **NEW** ADDITIONS
         # insert word into lexicon
         self._lexicon[word_id] = word
 
@@ -350,7 +351,7 @@ class crawler(object):
                 self._add_words_to_document()
                 print("    url=" + repr(self._curr_url))
 
-                # **NEW** 
+                # **NEW** ADDITIONS
                 # populate inverted index (word_id:set(doc_ids))
                 for word_id, font_size in self._curr_words:
                     if word_id not in self._inverted_index:
