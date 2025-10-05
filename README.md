@@ -24,3 +24,5 @@ Two functions were also added to the file:
 Test cases can be found in the `test_crawler.py` file:
 * __setUp:__ This is called before every test and it creates a new crawler object each time to isolate the tests
 * __test_crawl_example_com:__ This runs crawler on a single page, www.example.com. It checks to make sure that `doc_index`, `lexicon`, and `inverted_index` are populated properly by checking that everything corresponds to the correct doc_id and that the URL/title/description/words are extracted correctly from the page.
+
+To run the test cases, run `python -m unittest test_crawler.py`
