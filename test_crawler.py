@@ -9,6 +9,7 @@ import requests
 class TestCrawler(unittest.TestCase):
     def setUp(self):
         self.bot = crawler(None, "urls.txt")
+        
     def display_persistant_data(self):
         print("Doc Index:", self.bot._doc_index)
         print("Lexicon:", self.bot._lexicon)

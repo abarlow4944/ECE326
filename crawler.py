@@ -114,8 +114,6 @@ class crawler(object):
         self._lexicon = {}
         self._doc_index = {}
 
-
-
         # get all urls into the queue
         try:
             with open(url_file, 'r') as f:
@@ -350,20 +348,19 @@ class crawler(object):
                     #add docs to inverted index
                     self._inverted_index[word[0]].add(self._curr_doc_id)
 
-    
-
             except Exception as e:
                 print(e)
                 pass
             finally:
                 if socket:
                     socket.close()
+
     def get_inverted_index(self):
-            return self._inverted_index
+        return self._inverted_index
     
     def get_resolved_inverted_index(self):
         resolved_index = {self._lexicon[words_id] : {self._doc_index[doc]["url"] for doc in docs_ids} 
-                          for words_id, docs_ids in self._inverted_index.items()}
+                            for words_id, docs_ids in self._inverted_index.items()}
         return resolved_index
     
     def get_doc_title(self, doc_id):

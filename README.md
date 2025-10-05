@@ -14,7 +14,7 @@ The following data structures were made in `crawler.py`:
 * **self._inverted_index:** This data structure is a dictionary where the key is a word id and the value is a set of document ids that the word can be found in.
   * __{word_id: set(doc_ids)}__
  
-These data structures are populated in the `crawl()` function. The lexicon data structure is populated in the `word_id()` function, which is indirectly called by `crawl()`. You can find the new code that was added to the `crawler.py` starter code by looking for the `# **NEW** ADDITIONS` comments.
+These data structures are populated in the `crawl()` function. The lexicon data structure is populated in the `word_id()` function, which is indirectly called by `crawl()`. 
 
 Two functions were also added to the file:
 * __get_inverted_index():__ This is a getter function that returns the `inverted index` data structure.
