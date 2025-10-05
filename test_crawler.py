@@ -10,6 +10,11 @@ class TestCrawler(unittest.TestCase):
     def setUp(self):
         # urls.txt can be empty for these tests
         self.bot = crawler(None, "urls.txt")
+    def display_persistant_data(self):
+        print("Doc Index:", self.bot._doc_index)
+        print("Lexicon:", self.bot._lexicon)
+        print("Inverted Index:", self.bot.get_inverted_index())
+        print("Inverted Index:", self.bot.get_resolved_inverted_index())
 
     def test_crawl_example_com(self):
         # use www.example.com as example
@@ -33,14 +38,71 @@ class TestCrawler(unittest.TestCase):
 
         for word_id, doc_ids in self.bot._inverted_index.items():
             self.assertIn(1, doc_ids, "Correct doc_id not given from word_id")
-
-    # def test_get_resolved_inverted_index:
-
-    #def test_get_inverted_index:
+        self.display_persistant_data()
 
 
 
-       
+         # -------------------------------
+    # Test 2: get_inverted_index()
+    # -------------------------------
+    def test_get_inverted_index_returns_correct_structure(self):
+        # simulate minimal state
+        self.bot._inverted_index = {1: {1, 2}, 2: {1}}
+        result = self.bot.get_inverted_index()
+        self.assertIsInstance(result, dict, "Expected dict output")
+        self.assertEqual(result, {1: {1, 2}, 2: {1}}, "Returned index mismatch")
+
+    # -------------------------------
+    # Test 3: get_resolved_inverted_index()
+    # -------------------------------
+    def test_get_resolved_inverted_index_translates_ids(self):
+        # Fake data
+        self.bot._lexicon = {1: "example", 2: "domain"}
+        self.bot._doc_index = {1: {"url": "https://example.com/"}}
+        self.bot._inverted_index = {1: {1}, 2: {1}}
+
+        resolved = self.bot.get_resolved_inverted_index()
+        self.assertIn("example", resolved, "Missing resolved key")
+        self.assertEqual(resolved["example"], {"https://example.com/"})
+        self.assertIn("domain", resolved)
+        self.assertEqual(resolved["domain"], {"https://example.com/"})
+
+    def test_get_resolved_inverted_index_multiple_docs(self):
+        self.bot._lexicon = {1: "example", 2: "domain"}
+        self.bot._doc_index = {
+            1: {"url": "https://example.com/"},
+            2: {"url": "https://another.com/"}
+        }
+        self.bot._inverted_index = {
+            1: {1, 2},  # "example" appears in both
+            2: {1}      # "domain" only in doc 1
+        }
+
+        resolved = self.bot.get_resolved_inverted_index()
+        self.assertEqual(
+            resolved["example"],
+            {"https://example.com/", "https://another.com/"},
+            "Word 'example' should resolve to both URLs"
+        )
+        self.assertEqual(
+            resolved["domain"],
+            {"https://example.com/"},
+            "Word 'domain' should only resolve to first URL"
+        )
+    
+    def test_crawl_handles_no_urls(self):
+        
+        with open("empty.txt", "w") as f:
+
+            f.write("")
+        self.bot = crawler(None, "empty.txt")
+        self.bot.crawl(depth=0)
+        self.assertEqual(len(self.bot._doc_index), 0, "doc_index should be empty")
+        self.assertEqual(len(self.bot._lexicon), 0, "lexicon should be empty")
+        self.assertEqual(len(self.bot._inverted_index), 0, "inverted_index should be empty")
+
+
+
 
 if __name__ == "__main__":
     unittest.main()

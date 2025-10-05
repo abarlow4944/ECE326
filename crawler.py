@@ -24,23 +24,6 @@ from bs4 import BeautifulSoup, Tag
 from collections import defaultdict
 import re
 
-"""
-LAB REQUIREMENTS:
-
-After the crawler finishes processing a list of URLs, your data structure should maintain the
-following information in memory:
-- Document Index, that keeps information about each document. This document should be ordered by document id. 
-- Lexicon, that keeps a list of words.
-- Inverted Index, that returns a list of document Ids given a word id
-- In the crawler class, you should provide a function, crawler.get_inverted_index(), which returns the inverted index in a dictionary. You should use the word id as the key, and the list of document ids as the value. The list of document ids should be stored in a set.
-- A function, crawler.get_resolved_inverted_index(), where word ids are replaced by the word strings, and the document Ids are replaced by URL strings in the invertedindex. It should also return data in a dictionary
-
-HINTS:
-1. Store the title for each web page and a short description of each web page, i.e. first 3 lines on the page, in the document index
-2. Provide an API that returns the title, and short description for each web page given a document id
-
-"""
-
 
 def attr(elem, attr):
     """An html attribute from an html element. E.g. <a href="">, then
@@ -64,14 +47,9 @@ class crawler(object):
     def __init__(self, db_conn, url_file):
         """Initialize the crawler with a connection to the database to populate
         and with the file containing the list of seed URLs to begin indexing."""
-        self._url_queue = [] # URLS to visit
-        self._doc_id_cache = {} # maps url:doc_id
-        self._word_id_cache = {} # maps word:word_id
-
-        # **NEW** ADDITIONS:
-        self._doc_index = {} # Document index. doc_id: url, title, first 3 lines (desc)
-        self._lexicon = {} # word_id:word
-        self._inverted_index = {} # word_id:set(doc_ids)
+        self._url_queue = []
+        self._doc_id_cache = {}
+        self._word_id_cache = {}
 
         # functions to call when entering and exiting specific tags
         self._enter = defaultdict(lambda *a, **ka: self._visit_ignore)
@@ -131,6 +109,13 @@ class crawler(object):
         self._font_size = 0
         self._curr_words = None
 
+        # extended data structures to maintain data between urls
+        self._inverted_index = defaultdict(set)
+        self._lexicon = {}
+        self._doc_index = {}
+
+
+
         # get all urls into the queue
         try:
             with open(url_file, 'r') as f:
@@ -149,7 +134,7 @@ class crawler(object):
 
     # TODO remove me in real version
     def _mock_insert_word(self, word):
-        """A function that pretends to instert a word into the lexicon db table
+        """A function that pretends to inster a word into the lexicon db table
         and then returns that newly inserted word's id."""
         ret_id = self._mock_next_word_id
         self._mock_next_word_id += 1
@@ -166,9 +151,11 @@ class crawler(object):
         #          store it in the word id cache, and return the id.
 
         word_id = self._mock_insert_word(word)
+        
         self._word_id_cache[word] = word_id
 
-        # insert word into lexicon
+
+        #add word to lexicon
         self._lexicon[word_id] = word
 
         return word_id
@@ -184,7 +171,6 @@ class crawler(object):
 
         doc_id = self._mock_insert_document(url)
         self._doc_id_cache[url] = doc_id
-
         return doc_id
 
     def _fix_url(self, curr_url, rel):
@@ -208,6 +194,7 @@ class crawler(object):
     def _visit_title(self, elem):
         """Called when visiting the <title> tag."""
         title_text = self._text_of(elem).strip()
+        print("document title=" + repr(title_text))
 
         # TODO update document title for document id self._curr_doc_id
 
@@ -237,7 +224,7 @@ class crawler(object):
         print("    num words=" + str(len(self._curr_words)))
 
     def _increase_font_factor(self, factor):
-        """Increase/decrease the current font size."""
+        """Increade/decrease the current font size."""
 
         def increase_it(elem):
             self._font_size += factor
@@ -299,12 +286,12 @@ class crawler(object):
 
                 # ignore this tag and everything in it
                 if tag_name in self._ignored_tags:
-                    if tag.next_sibling:
-                        tag = NextTag(tag.next_sibling)
+                    if tag.nextSibling:
+                        tag = NextTag(tag.nextSibling)
                     else:
                         self._exit[stack[-1].name.lower()](stack[-1])
                         stack.pop()
-                        tag = NextTag(tag.parent.next_sibling)
+                        tag = NextTag(tag.parent.nextSibling)
 
                     continue
 
@@ -345,66 +332,52 @@ class crawler(object):
                 self._curr_url = url
                 self._curr_doc_id = doc_id
                 self._font_size = 0
-                self._curr_words = [] # all words on the current doc
-                self._index_document(soup) # work through HTML and collect words
+                self._curr_words = []
+                self._index_document(soup)
                 self._add_words_to_document()
                 print("    url=" + repr(self._curr_url))
 
-                # **NEW** 
-                # populate inverted index (word_id:set(doc_ids))
-                for word_id, font_size in self._curr_words:
-                    if word_id not in self._inverted_index:
-                        self._inverted_index[word_id] = set()
-                    self._inverted_index[word_id].add(self._curr_doc_id)
+                #store doc info in order with 3 first text lines of text
+                self._doc_index[self._curr_doc_id] = {
+                    "url":self._curr_url,
+                    "title":self._text_of(soup.title).strip() if soup.title else "",
+                    "description": [line for line in self._text_of(soup.body).strip().splitlines() if line][:3] if soup.body else []
+                }
                 
-                # populate doc_index (doc_id: url, title, first 3 lines (desc))
-                if doc_id not in self._doc_index:
-                    self._doc_index[doc_id] = {
-                        "url": url,
-                        "title":"",
-                        "description":""
-                    }
+                #create inverted index
+                for word in self._curr_words:
+                    
+                    #add docs to inverted index
+                    self._inverted_index[word[0]].add(self._curr_doc_id)
 
-                    if soup.title.text: # add the title if it exists
-                        self._doc_index[doc_id]["title"] = soup.title.text
+    
 
-                    # get the first three lines of text as the description
-                    all_text = soup.get_text()
-                    lines = all_text.splitlines()
-                    three_lines = []
 
-                    for line in lines:
-                        if len(line.strip()) and len(three_lines) < 3: # there is text content on this line
-                            three_lines.append(line.strip())
+               
+                
+                   
 
-                    self._doc_index[doc_id]["description"] = three_lines
 
             except Exception as e:
-                print("ERROR:" + e)
+                print(e)
                 pass
             finally:
                 if socket:
                     socket.close()
-
-    # **NEW** ADDITIONS:
-    def get_inverted_index(self): # returns inverted index (key: word_id, value: list of doc_ids)
-        return self._inverted_index
-
-    def get_resolved_inverted_index(self): # returns human-readable version of inverted index (key: word, value: list of urls)
-        resolved_inverted_index = {}
-
-        for word_id, doc_ids in self._inverted_index.items():
-            urls = set()
-
-            for doc_id in doc_ids:
-                urls.add(self._doc_index[doc_id]["url"])
-
-            resolved_inverted_index[self._lexicon[word_id]] = urls
-        
-        return resolved_inverted_index
+    def get_inverted_index(self):
+            return self._inverted_index
+    
+    def get_resolved_inverted_index(self):
+        resolved_index = {self._lexicon[words_id] : {self._doc_index[doc]["url"] for doc in docs_ids} 
+                          for words_id, docs_ids in self._inverted_index.items()}
+        return resolved_index
+    
+    def get_doc_title(self, doc_id):
+        return self._doc_index[doc_id]["title"] if doc_id in self._doc_index else ""
+    
+    def get_doc_description(self, doc_id):
+        return self._doc_index[doc_id]["description"] if doc_id in self._doc_index else []
 
 if __name__ == "__main__":
     bot = crawler(None, "urls.txt")
     bot.crawl(depth=1)
-
-
