@@ -41,10 +41,6 @@ class TestCrawler(unittest.TestCase):
         self.display_persistant_data()
 
 
-
-         # -------------------------------
-    # Test 2: get_inverted_index()
-    # -------------------------------
     def test_get_inverted_index_returns_correct_structure(self):
         # simulate minimal state
         self.bot._inverted_index = {1: {1, 2}, 2: {1}}
@@ -52,9 +48,6 @@ class TestCrawler(unittest.TestCase):
         self.assertIsInstance(result, dict, "Expected dict output")
         self.assertEqual(result, {1: {1, 2}, 2: {1}}, "Returned index mismatch")
 
-    # -------------------------------
-    # Test 3: get_resolved_inverted_index()
-    # -------------------------------
     def test_get_resolved_inverted_index_translates_ids(self):
         # Fake data
         self.bot._lexicon = {1: "example", 2: "domain"}
@@ -89,7 +82,7 @@ class TestCrawler(unittest.TestCase):
             {"https://example.com/"},
             "Word 'domain' should only resolve to first URL"
         )
-    
+
     def test_crawl_handles_no_urls(self):
         
         with open("empty.txt", "w") as f:

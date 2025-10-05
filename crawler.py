@@ -352,12 +352,6 @@ class crawler(object):
 
     
 
-
-               
-                
-                   
-
-
             except Exception as e:
                 print(e)
                 pass
