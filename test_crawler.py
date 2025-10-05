@@ -9,7 +9,7 @@ import requests
 class TestCrawler(unittest.TestCase):
     def setUp(self):
         self.bot = crawler(None, "urls.txt")
-        
+
     def display_persistant_data(self):
         print("Doc Index:", self.bot._doc_index)
         print("Lexicon:", self.bot._lexicon)
@@ -40,7 +40,6 @@ class TestCrawler(unittest.TestCase):
         for word_id, doc_ids in self.bot._inverted_index.items():
             self.assertIn(1, doc_ids, "Correct doc_id not given from word_id")
         self.display_persistant_data()
-
 
     def test_get_inverted_index_returns_correct_structure(self):
         # simulate minimal state
@@ -94,8 +93,6 @@ class TestCrawler(unittest.TestCase):
         self.assertEqual(len(self.bot._doc_index), 0, "doc_index should be empty")
         self.assertEqual(len(self.bot._lexicon), 0, "lexicon should be empty")
         self.assertEqual(len(self.bot._inverted_index), 0, "inverted_index should be empty")
-
-    # more tests that check crawler (more depth etc):
 
 
 
