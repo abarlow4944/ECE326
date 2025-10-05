@@ -1,7 +1,7 @@
 # ECE326 Lab 1
 
 ## Front-End
-The code for the front-end is in a file called index.tpl, which is located in the `views` directory. To run the server, run `python app.py`
+The code for the front-end is in a file called `index.tpl`, which is located in the `views` directory. To run the server, run `python app.py`
 
 ## Back-End
 Refer to `crawler.py` for back-end starter code, `test_crawler.py` for unit tests.
@@ -15,6 +15,11 @@ The following data structures were made in `crawler.py`:
   * __{word_id: set(doc_ids)}__
  
 These data structures are populated in the `crawl()` function. The lexicon data structure is populated in the `word_id()` function, which is indirectly called by `crawl()`. You can find the new code that was added to the `crawler.py` starter code by looking for the `# **NEW** ADDITIONS` comments.
+
+Two functions were also added to the file:
+* __get_inverted_index():__ This is a getter function that returns the `inverted index` data structure.
+* __get_resolved_inverted_index():__ This function returns a human-readable version of `inverted index` by returning a dictionary where the key is a word, and the value is a set of URLs that represent pages that the word can be found in.
+  * __key: word, value: set of urls__
 
 Test cases can be found in the `test_crawler.py` file:
 * __setUp:__ This is called before every test and it creates a new crawler object each time to isolate the tests
