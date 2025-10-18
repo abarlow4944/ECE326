@@ -1,6 +1,15 @@
 body {
     overflow-y: auto;
-    min-height: 100vh
+    min-height: 100vh;
+}
+
+.top-bar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 50px;
+    align-items: center;
+    gap: 10px;
 }
 
 .search-container {
@@ -25,10 +34,13 @@ body {
     color: white;
     border-radius: 3px;
     border: none;
+    text-decoration: none;
+    font-size: 13px;
 }
 
 .button:hover {
     background-color: #5093fe;
+    cursor: pointer;
 }
 
 .button:active {
@@ -36,11 +48,40 @@ body {
     font-weight: bold;
 }
 
+.sign-in.button, .welcome {
+    margin-left: auto;
+}
+
 .logo {
     height: 200px;
 }
 
-h1, td {
+h1, td, p{
     font-family: "Roboto", sans-serif;
     font-weight: 400;
+}
+
+h1{
+    font-size: 20px;
+}
+
+.tables-container {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 30px;
+}
+
+table {
+    width: 75%;
+    margin-bottom: 25px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.table{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
