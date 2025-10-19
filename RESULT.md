@@ -1,0 +1,12 @@
+## Lab 2: Preliminary Benchmark Results
+- Maximum number of connections that can be handled before connection drops: 26
+- Maximum number of requests per second that can be sustained by the server when operating with maximum number of connections: 181
+- Average and 99 percentile of response time:
+    - Time per request: 143.700 ms (mean)
+    - Time per request: 5.527 ms (mean, across all concurrent requests)
+    - 99 percentile: 433 ms
+- Utilization when max performance is sustained:
+    - CPU: 99.67% idle
+    - Memory: 420MB
+    - Disk IO: bi: 52 blocks/s bo: 1967 blocks/s
+    - Network: recv: 341KB/s, send: 83KB/s

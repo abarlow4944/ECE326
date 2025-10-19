@@ -29,3 +29,11 @@ Test cases can be found in the `test_crawler.py` file:
 * __test_get_resolved_inverted_index_multiple_docs:__ This tests that `get_resolved_inverted_index()` correctly handles multiple documents. It ensures that words appearing in multiple pages map to multiple URLs, and words appearing in only one page map to a single URL.  
 * __test_crawl_handles_no_urls:__ This ensures that the crawler behaves correctly when given an empty URL file. It verifies that `doc_index`, `lexicon`, and `inverted_index` remain empty and that the program does not crash or raise an error.  
 To run the test cases, run `python -m unittest test_crawler.py`
+
+# ECE326 Lab 2
+## Benchmark Setup
+Benchmarks were performed from a local Ubuntu environment via WSL against the web application hosted on an AWS EC2 Ubuntu instance. Tests were conducted using varying concurrency levels to determine maximum stable connections, and the following tools were used to simultaneously measure resource utilizations:
+- CPU usage: mpstat
+- Memory usage: dstat
+- Disk IO: vmstat
+- Network: dstat
