@@ -7,6 +7,6 @@
     - 99 percentile: 433 ms
 - Utilization when max performance is sustained:
     - CPU: 99.67% idle
-    - Memory: 420MB
+    - Memory: 420MB used
     - Disk IO: bi: 52 blocks/s bo: 1967 blocks/s
     - Network: recv: 341KB/s, send: 83KB/s
