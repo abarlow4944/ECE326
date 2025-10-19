@@ -196,3 +196,5 @@ cython_debug/
 .alias
 
 client_secret.json
+
+myKeyPair.pem
