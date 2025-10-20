@@ -47,28 +47,34 @@ To ensure app would stay online regardless of reboot we created a custom service
 
 This ensures it restarts automatically on reboot
 
-[Unit]
-
-Description=My Python Web App
+```
+[Unit]\
+Description=My Python Web App\
 After=network.target
+```
 
-[Service]
-
-User=ubuntu
-WorkingDirectory=/home/ubuntu/ECE326
-ExecStart=/usr/bin/python3 /home/ubuntu/ECE326/app.py --host=0.0.0.0 --port=8080
-Restart=always
-RestartSec=5
+```
+[Service]\
+User=ubuntu\
+WorkingDirectory=/home/ubuntu/ECE326\
+ExecStart=/usr/bin/python3 /home/ubuntu/ECE326/app.py --host=0.0.0.0 --port=8080\
+Restart=always\
+RestartSec=5\
 Environment=PYTHONUNBUFFERED=1
+```
 
-[Install]
+```
+[Install]\
+WantedBy=multi-user.target\
+```
 
-WantedBy=multi-user.target
-Unit
+Unit \
+Shows description and after ensures network is up\
 
-Shows description and after ensures network is up
-Service section
+Service section\
+Defines the restart with clear parameters including moving from root user and identifying the location of app to start along with process to start it restart timer is set to 5 to prevent infinite loop\
 
-Defines the restart with clear parameters including moving from root user and identifying the location of app to start along with process to start it restart timer is set to 5 to prevent infinite loop 
-Install
+Install\
 Tells where in the bot process to reinstall service service is set to multiuser.target which means the system is fully set up
+
+We used port forwarding `ssh -i "myKeyPair.pem" -L 8080:localhost:8080 ubuntu@ec2-3-80-89-86.compute-1.amazonaws.com` so that we could connect to `http://localhost:8080/` on our local devices
