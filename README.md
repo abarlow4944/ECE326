@@ -47,11 +47,13 @@ To ensure app would stay online regardless of reboot we created a custom service
 
 This ensures it restarts automatically on reboot
 
-```[Unit]
+[Unit]
+
 Description=My Python Web App
 After=network.target
 
 [Service]
+
 User=ubuntu
 WorkingDirectory=/home/ubuntu/ECE326
 ExecStart=/usr/bin/python3 /home/ubuntu/ECE326/app.py --host=0.0.0.0 --port=8080
@@ -60,9 +62,10 @@ RestartSec=5
 Environment=PYTHONUNBUFFERED=1
 
 [Install]
+
 WantedBy=multi-user.target
 Unit
-```
+
 Shows description and after ensures network is up
 Service section
 
