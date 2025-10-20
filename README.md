@@ -31,9 +31,41 @@ Test cases can be found in the `test_crawler.py` file:
 To run the test cases, run `python -m unittest test_crawler.py`
 
 # ECE326 Lab 2
+Public IP address: 3.80.89.86
+Port number: 8080
+Public DNS: http://ec2-3-80-89-86.compute-1.amazonaws.com:8080/
+
 ## Benchmark Setup
 Benchmarks were performed from a local Ubuntu environment via WSL against the web application hosted on an AWS EC2 Ubuntu instance. Tests were conducted using varying concurrency levels to determine maximum stable connections, and the following tools were used to simultaneously measure resource utilizations:
 - CPU usage: mpstat
 - Memory usage: dstat
 - Disk IO: vmstat
 - Network: dstat
+
+## Backend Information
+To ensure app would stay online regardless of reboot we created a custom service at `/etc/systemd/system/myapp.service`
+
+This ensures it restarts automatically on reboot
+
+```[Unit]
+Description=My Python Web App
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/ECE326
+ExecStart=/usr/bin/python3 /home/ubuntu/ECE326/app.py --host=0.0.0.0 --port=8080
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+Unit
+```
+Shows description and after ensures network is up
+Service section
+
+Defines the restart with clear parameters including moving from root user and identifying the location of app to start along with process to start it restart timer is set to 5 to prevent infinite loop 
+Install
+Tells where in the bot process to reinstall service service is set to multiuser.target which means the system is fully set up
