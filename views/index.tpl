@@ -11,6 +11,7 @@
 </head>
 <body>
     <div class="search-container" >
+        <!-- Top Bar -->
         <div class="top-bar">
             % if logged_in:
                 <p class= "welcome">Welcome, {{ user_email }}</p>
@@ -20,6 +21,7 @@
             % end
         </div>
 
+        <!--  Search Bar -->
         <img class="logo" src="/static/images/logo.png" alt="GoFetch Logo">
 
         <form action="/search" method="GET">
@@ -28,6 +30,7 @@
             <input class="button submit" type="submit" value="Search">
         </form>
 
+        <!-- Tables -->
         <div class="tables-container">
         <div class="table">
             <h1>Word Count</h1>
@@ -57,7 +60,6 @@
             </table>
         </div>
 
-
         <!-- only logged in users have access -->
         % if logged_in:
         <div class="table">
@@ -75,6 +77,41 @@
         % end
     </div>
 
+    </div>
+
+    <div class="results-container">
+        <!-- Results -->
+        % if results:
+            % for result in results:
+                <div class="results-bundle">
+                    <td>
+                        <a class="result-title" href="{{result['url']}}" target="_blank">
+                            <h1>{{result['title']}}</h1>
+                        </a>
+                        <p class="result-desc">{{result['desc']}}</p>
+                    </td>
+                </div>
+            % end
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <div class="pagination-buttons">
+                        
+                    % if page > 1:
+                        <a class="button" href="/search?keywords={{query}}&page={{page-1}}">Previous</a>
+                    % end
+                    <span>Page {{page}}</span>
+                    % if results and len(results) >= 5:  
+                        <a class="button" href="/search?keywords={{query}}&page={{page+1}}">Next</a>
+                    % end
+
+                </div>
+            </div>
+
+        <!-- Error Message -->
+        % elif query:
+            <p class="no-results">No results found for "{{query}}".</p>
+        % end
     </div>
 
 </body>

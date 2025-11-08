@@ -20,7 +20,7 @@ body {
 }
 
 .keywords {
-    width: 250px;
+    width: 350px;
     padding: 8px;
     border-radius: 3px;
     border: 1px solid #aaaaaa; 
@@ -85,3 +85,58 @@ table {
     flex-direction: column;
     align-items: center;
 }
+
+.results-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    margin: 0px 25%;
+}
+
+.results-bundle{
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.result-desc{
+    font-size: 14px;
+    margin: 0px;
+}
+
+.result-title h1{
+    font-size: 20px;
+    margin: 5px 0px;
+    text-decoration: none;
+    width: fit-content;
+    display: inline-block;
+}
+
+.result-title h1:hover{
+    text-decoration: underline;
+}
+
+.pagination{
+    gap: 10px;
+    margin-top: 30px;
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.pagination-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+span {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+}
+
+.no-results{
+    text-align: center;
+}
+

@@ -12,6 +12,7 @@ from db import init_db, log_search, get_recent_searches
 
 ################################################################### GLOBAL VARIABLES
 global_keyword_dict = Counter() # keeps track of keywords and their occurances among all users
+paginated_results = []
 
 session_opts = {
     'session.type': 'file',
@@ -32,9 +33,9 @@ def home():
     if 'user_email' in session: # signed-in mode
         user_email = session['user_email']
         recent = get_recent_searches(user_email)
-        return template('index', keyword_dict={}, top_20=global_keyword_dict.most_common(20), logged_in=True, user_email=user_email, recent=recent)
+        return template('index', keyword_dict={}, top_20=global_keyword_dict.most_common(20), logged_in=True, user_email=user_email, recent=recent, query="", results=[])
     else: # anonymous mode
-        return template('index', keyword_dict={}, top_20=global_keyword_dict.most_common(20), logged_in=False, user_email=None, recent=[])
+        return template('index', keyword_dict={}, top_20=global_keyword_dict.most_common(20), logged_in=False, user_email=None, recent=[], query="", results=[])
 
 
 # Loading style.css and other static files
@@ -92,10 +93,34 @@ def formHandler():
     keyword_dict = Counter() # keeping track of word occurance
     recent = [] # 10 recent searches
 
+    results_per_page = 5 # number of results that can be shown per page
+    page = int(request.query.get('page') or 1) # page number
+
     if keywords: # if user entered a keyword
         keyword_list = keywords.split()
         keyword_dict.update(keyword_list)
         global_keyword_dict.update(keyword_list)
+
+        # --- MOCK DATA (replace later with backend query) ---
+        mock_results = [
+            {"title": "ECE326 Lab 3 Overview", "url": "https://eecg.utoronto.ca/ece326/lab3", "desc": "Lab instructions for search engine frontend and backend integration."},
+            {"title": "Bottle Web Framework", "url": "https://bottlepy.org", "desc": "Lightweight Python web framework for building web apps."},
+            {"title": "SQLite Database", "url": "https://sqlite.org", "desc": "Self-contained SQL database engine commonly used for Python projects."},
+            {"title": "Python Official Docs", "url": "https://docs.python.org", "desc": "Comprehensive documentation for the Python language."},
+            {"title": "PageRank Algorithm", "url": "https://en.wikipedia.org/wiki/PageRank", "desc": "Explanation of the PageRank algorithm used in search engines."},
+            {"title": "Google Search Design", "url": "https://design.google.com", "desc": "Material Design guidelines by Google."},
+            {"title": "Python Official Docs", "url": "https://docs.python.org", "desc": "Comprehensive documentation for the Python language."},
+            {"title": "PageRank Algorithm", "url": "https://en.wikipedia.org/wiki/PageRank", "desc": "Explanation of the PageRank algorithm used in search engines."},
+            {"title": "Google Search Design", "url": "https://design.google.com", "desc": "Material Design guidelines by Google."},
+            {"title": "Python Official Docs", "url": "https://docs.python.org", "desc": "Comprehensive documentation for the Python language."},
+            {"title": "PageRank Algorithm", "url": "https://en.wikipedia.org/wiki/PageRank", "desc": "Explanation of the PageRank algorithm used in search engines."},
+            {"title": "Google Search Design", "url": "https://design.google.com", "desc": "Material Design guidelines by Google."}
+        ]
+
+        # pagination
+        start = (page - 1) * results_per_page # starting index (first URL)
+        end = start + results_per_page # last index (last URL)
+        paginated_results = mock_results[start:end] # array of URLs we want to display
 
         if 'user_email' in session: # signed-in mode
             user_email = session['user_email']
@@ -104,10 +129,11 @@ def formHandler():
                 log_search(user_email, kw) # add word to database
             recent = get_recent_searches(user_email) # get recent words from database
             response = template('index', keyword_dict=keyword_dict, top_20=global_keyword_dict.most_common(20),
-                                logged_in=True, user_email=user_email, recent=recent)
+                                logged_in=True, user_email=user_email, recent=recent, query=keyword_list[0], results=paginated_results, page=page)
         else: # anonymous mode
             response = template('index', keyword_dict=keyword_dict, top_20=global_keyword_dict.most_common(20),
-                                logged_in=False, user_email=None, recent=[])
+                                logged_in=False, user_email=None, recent=[], query=keyword_list[0], results=paginated_results, page=page)
+
 
     # clear the URL to prevent resubmission
     response += '<script>if(window.history.replaceState){window.history.replaceState(null,null,"/");}</script>'
