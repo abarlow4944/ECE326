@@ -33,8 +33,8 @@
         <!-- Tables -->
         <div class="tables-container">
         <div class="table">
-            <h1>Word Count</h1>
             <table id="results">
+                <th colspan="2">Word Count</th>
                 % if keyword_dict:
                     % for word, count in keyword_dict.items():
                     <tr>
@@ -47,8 +47,8 @@
         </div>
         
         <div class="table">
-            <h1>Top 20 Most Popular</h1>
             <table id="history">
+                <th colspan="2">Top 20 Most Popular</th>
                 % if top_20:
                     % for i, (word, count) in enumerate(top_20):
                     <tr>
@@ -63,8 +63,8 @@
         <!-- only logged in users have access -->
         % if logged_in:
         <div class="table">
-            <h1>Recent Searches</h1>
             <table id="recent">
+                <th colspan="2">Recent Searches</th>
                 % if recent:
                     % for keyword in recent:
                     <tr>
@@ -84,12 +84,10 @@
         % if results:
             % for result in results:
                 <div class="results-bundle">
-                    <td>
-                        <a class="result-title" href="{{result['url']}}" target="_blank">
-                            <h1>{{result['title']}}</h1>
-                        </a>
-                        <p class="result-desc">{{result['desc']}}</p>
-                    </td>
+                    <a class="result-title" href="{{result['url']}}" target="_blank">
+                        <h1>{{result['title']}}</h1>
+                    </a>
+                    <p class="result-desc">{{result['desc']}}</p>
                 </div>
             % end
 
