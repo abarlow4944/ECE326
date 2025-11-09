@@ -10,14 +10,16 @@ class TestCrawler(unittest.TestCase):
     def setUp(self):
         self.bot = crawler(None, "urls.txt")
 
+    # Lab 3 unit tests
     def display_persistant_data(self):
         print("Doc Index:", self.bot._doc_index)
         print("Lexicon:", self.bot._lexicon)
         print("Inverted Index:", self.bot.get_inverted_index())
         print("Inverted Index:", self.bot.get_resolved_inverted_index())
         print("links:", self.bot.get_links())
+
     def test_crawl_eecg_utoronto_ca(self):
-        #use http://www.eecg.toronto.edu/ as test site to dept of 1
+        #use http://www.eecg.toronto.edu/ as test site to depth of 1
         with open("urls.txt", "w") as f:
             f.write("https://www.eecg.toronto.edu/\n")
 
@@ -26,6 +28,8 @@ class TestCrawler(unittest.TestCase):
         self.display_persistant_data()
         self.bot.compute_page_rank()
         self.bot.store_to_database()
+
+    ## Lab 1 unit tests
     '''
     def test_crawl_example_com(self):
         # use www.example.com as example

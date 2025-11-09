@@ -378,6 +378,7 @@ class crawler(object):
     
     def get_doc_title(self, doc_id):
         return self._doc_index[doc_id]["title"] if doc_id in self._doc_index else ""
+    
     def get_doc_description(self, doc_id):
         return self._doc_index[doc_id]["description"] if doc_id in self._doc_index else []
 
@@ -476,11 +477,13 @@ class crawler(object):
         self.store_lexicon()
         self.store_doc_index()
         self.store_inverted_index()
+
     def get_links(self):
         #expand links to name instead of ids
         resolved_links = {self._doc_index[from_id]["url"] : {self._doc_index[to_id]["url"] for to_id in to_ids} 
                             for from_id, to_ids in self._links.items()}
         return resolved_links
+    
 if __name__ == "__main__":
     bot = crawler(None, "urls.txt")
     bot.crawl(depth=1)

@@ -10,7 +10,6 @@ from beaker.middleware import SessionMiddleware
 from history_db import init_db, log_search, get_recent_searches
 from search_db import search_db
 
-
 ################################################################### GLOBAL VARIABLES
 global_keyword_dict = Counter() # keeps track of keywords and their occurances among all users
 paginated_results = []
@@ -102,7 +101,7 @@ def formHandler():
         keyword_dict.update(keyword_list)
         global_keyword_dict.update(keyword_list)
 
-        #
+        # extract from db
         results = search_db(keyword_list[0], page, results_per_page)
 
         if 'user_email' in session: # signed-in mode
@@ -116,7 +115,6 @@ def formHandler():
         else: # anonymous mode
             response = template('index', keyword_dict=keyword_dict, top_20=global_keyword_dict.most_common(20),
                                 logged_in=False, user_email=None, recent=[], query=keyword_list[0], results=results, page=page)
-
 
     # clear the URL to prevent resubmission
     response += '<script>if(window.history.replaceState){window.history.replaceState(null,null,"/");}</script>'

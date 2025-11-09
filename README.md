@@ -80,4 +80,6 @@ Tells where in the bot process to reinstall service service is set to multiuser.
 We used port forwarding `ssh -i "myKeyPair.pem" -L 8080:localhost:8080 ubuntu@ec2-3-80-89-86.compute-1.amazonaws.com` so that we could connect to `http://localhost:8080/` on our local devices
 
 # ECE326 Lab 3
-The benchmarking results can be found in `RESULT.md`
+The benchmarking results can be found in `RESULT.md`.
+
+ASSUMPTION: In this lab, we assume that URLs containing fragment identifiers (e.g., #section) are treated as distinct URLs. For example, https://www.eecg.toronto.edu/ and https://www.eecg.toronto.edu/#nextra-skip-nav are considered separate links during crawling. This is because the crawler processes each hyperlink it encounters as a distinct entry, even if some anchors point to the same base document. This assumption does not affect the correctness of indexing or PageRank computation for this lab

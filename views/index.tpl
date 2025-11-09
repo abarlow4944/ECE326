@@ -81,7 +81,7 @@
 
     <div class="results-container">
         <!-- Results -->
-        % if len(results) > 1:
+        % if len(results) > 0:
             % for result in results:
                 <div class="results-bundle">
                     <a class="result-title" href="{{result['url']}}" target="_blank">
