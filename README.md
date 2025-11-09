@@ -80,3 +80,4 @@ Tells where in the bot process to reinstall service service is set to multiuser.
 We used port forwarding `ssh -i "myKeyPair.pem" -L 8080:localhost:8080 ubuntu@ec2-3-80-89-86.compute-1.amazonaws.com` so that we could connect to `http://localhost:8080/` on our local devices
 
 # ECE326 Lab 3
+The benchmarking results can be found in `RESULT.md`
