@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup, Tag
 import requests
 
 # python -m unittest test_crawler.py
-# make a unit test for crawl and the two functions we made (get_resolved_inverted_index and get_inverted_index )
 
 class TestCrawler(unittest.TestCase):
     def setUp(self):
