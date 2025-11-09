@@ -22,7 +22,9 @@ from urllib.parse import urlparse, urldefrag, urljoin
 from urllib.request import urlopen
 from bs4 import BeautifulSoup, Tag
 from collections import defaultdict
+import numpy as np
 import re
+import sqlite3
 
 
 def attr(elem, attr):
@@ -110,10 +112,11 @@ class crawler(object):
         self._curr_words = None
 
         # extended data structures to maintain data between urls
-        self._inverted_index = defaultdict(set)
-        self._lexicon = {}
-        self._doc_index = {}
-
+        self._inverted_index = defaultdict(set) #map word_id to set of doc_ids
+        self._lexicon = {}#map word_id to word
+        self._doc_index = {}#map doc_id to {url, title, description}
+        self._links = defaultdict(set)#store links between docs
+        self._page_rank = defaultdict(float)#store page rank values
         # get all urls into the queue
         try:
             with open(url_file, 'r') as f:
@@ -187,7 +190,10 @@ class crawler(object):
     def add_link(self, from_doc_id, to_doc_id):
         """Add a link into the database, or increase the number of links between
         two pages in the database."""
+        self._links[from_doc_id].add(to_doc_id)
+        
         # TODO
+
 
     def _visit_title(self, elem):
         """Called when visiting the <title> tag."""
@@ -336,10 +342,17 @@ class crawler(object):
                 print("    url=" + repr(self._curr_url))
 
                 #store doc info in order with 3 first text lines of text
+                #TODO: store links as well
+                if soup.body:
+                    text = soup.body.get_text("\n\n", strip=True)
+                    description = [l for l in text.splitlines() if l][:3]
+                else:
+                    description = []
                 self._doc_index[self._curr_doc_id] = {
                     "url":self._curr_url,
                     "title":self._text_of(soup.title).strip() if soup.title else "",
-                    "description": [line for line in self._text_of(soup.body).strip().splitlines() if line][:3] if soup.body else []
+                    "description": description
+                
                 }
                 
                 #create inverted index
@@ -365,10 +378,109 @@ class crawler(object):
     
     def get_doc_title(self, doc_id):
         return self._doc_index[doc_id]["title"] if doc_id in self._doc_index else ""
-    
     def get_doc_description(self, doc_id):
         return self._doc_index[doc_id]["description"] if doc_id in self._doc_index else []
 
+    # could use 1/n as initial pr value but using what they gave in sample because iterations will converge all the same
+    #we replaced xrange with range for python3 compatibility
+    #modiified to take mthe links from self._links instead of passing it in
+    def compute_page_rank(self, num_iterations=20, initial_pr=1.0):
+        
+
+        page_rank = defaultdict(lambda: float(initial_pr))
+        num_outgoing_links = defaultdict(float)
+        incoming_link_sets = defaultdict(set)
+        incoming_links = defaultdict(lambda: np.array([]))
+        damping_factor = 0.85
+
+        # using _links dict instead of passing links
+        # links format: self._links[from_doc_id] = set([to_doc_id,...])
+        for from_id, to_ids in self._links.items():
+            num_outgoing_links[int(from_id)] += float(len(to_ids))
+            for to_id in to_ids:
+                incoming_link_sets[to_id].add(int(from_id))
+
+     
+
+        # this simulates random jump distribution for dangling nodes
+        # convert each set of incoming links into numpy array
+        for doc_id in incoming_link_sets:
+            incoming_links[doc_id] = np.array([from_doc_id for from_doc_id in incoming_link_sets[doc_id]])
+        
+        num_documents = float(len(num_outgoing_links))
+        lead = (1.0 - damping_factor) / num_documents
+        partial_PR = np.vectorize(lambda doc_id: page_rank[doc_id] / num_outgoing_links[doc_id])
+
+        # replaced xrange with range for python3 compatibility
+        for _ in range(num_iterations):
+            for doc_id in num_outgoing_links:
+                #identify nodes with no outgoing links
+                dangling_nodes = [doc for doc in self._doc_index.keys() if num_outgoing_links.get(doc, 0.0) == 0.0]
+                dangling_mass = sum(page_rank[doc] for doc in dangling_nodes)
+                redistribute = damping_factor * dangling_mass / num_documents
+                
+                tail = 0.0
+                if len(incoming_links[doc_id]):
+                    tail = damping_factor * partial_PR(incoming_links[doc_id]).sum()
+                page_rank[doc_id] = lead + tail + redistribute
+        self._page_rank = page_rank
+
+        #we can move these dbs later when adding more functionality
+    def store_page_rank(self):
+        """Store the page rank value for a document in the database."""
+        conn = sqlite3.connect('search_engine.db')
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS page_rank (doc_id INTEGER PRIMARY KEY, page_rank REAL)")
+        for doc_id, pr_value in self._page_rank.items():
+            cursor.execute("REPLACE INTO page_rank (doc_id, page_rank) VALUES (?, ?)", (int(doc_id), float(pr_value)))
+        conn.commit()
+        conn.close()
+
+    def store_lexicon(self):
+        """Store the lexicon in the database."""
+        conn = sqlite3.connect('search_engine.db')
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS lexicon (word_id INTEGER PRIMARY KEY, word TEXT)")
+        for word_id, word in self._lexicon.items():
+            cursor.execute("REPLACE INTO lexicon (word_id, word) VALUES (?, ?)", (word_id, word))
+        conn.commit()
+        conn.close()
+
+    def store_doc_index(self):
+        """Store the document index in the database."""     
+        conn = sqlite3.connect('search_engine.db')
+        cursor = conn.cursor()         
+        cursor.execute("CREATE TABLE IF NOT EXISTS doc_index (doc_id INTEGER PRIMARY KEY, url TEXT, title TEXT, description TEXT)")
+        for doc_id, info in self._doc_index.items():    
+            description_text = "\n".join(info["description"])
+            cursor.execute("REPLACE INTO doc_index (doc_id, url, title, description) VALUES (?, ?, ?, ?)", 
+                           (doc_id, info["url"], info["title"], description_text))
+            
+        conn.commit()
+        conn.close()
+
+    def store_inverted_index(self): 
+        """Store the inverted index in the database."""
+        conn = sqlite3.connect('search_engine.db')
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS inverted_index (word_id INTEGER, doc_id INTEGER, PRIMARY KEY (word_id, doc_id))")
+        for word_id, doc_ids in self._inverted_index.items():
+            for doc_id in doc_ids:
+                cursor.execute("REPLACE INTO inverted_index (word_id, doc_id) VALUES (?, ?)", (word_id, doc_id))
+        conn.commit()
+        conn.close()
+
+    def store_to_database(self):
+        """Store all data structures to the database."""
+        self.store_page_rank()
+        self.store_lexicon()
+        self.store_doc_index()
+        self.store_inverted_index()
+    def get_links(self):
+        #expand links to name instead of ids
+        resolved_links = {self._doc_index[from_id]["url"] : {self._doc_index[to_id]["url"] for to_id in to_ids} 
+                            for from_id, to_ids in self._links.items()}
+        return resolved_links
 if __name__ == "__main__":
     bot = crawler(None, "urls.txt")
     bot.crawl(depth=1)
