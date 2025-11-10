@@ -414,11 +414,12 @@ class crawler(object):
 
         # replaced xrange with range for python3 compatibility
         for _ in range(num_iterations):
+            #identify nodes with no outgoing links
+            dangling_nodes = [doc for doc in self._doc_index.keys() if num_outgoing_links.get(doc, 0.0) == 0.0]
+            dangling_mass = sum(page_rank[doc] for doc in dangling_nodes)
+            redistribute = damping_factor * dangling_mass / num_documents
+                
             for doc_id in num_outgoing_links:
-                #identify nodes with no outgoing links
-                dangling_nodes = [doc for doc in self._doc_index.keys() if num_outgoing_links.get(doc, 0.0) == 0.0]
-                dangling_mass = sum(page_rank[doc] for doc in dangling_nodes)
-                redistribute = damping_factor * dangling_mass / num_documents
                 
                 tail = 0.0
                 if len(incoming_links[doc_id]):
