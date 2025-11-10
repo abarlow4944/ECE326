@@ -10,6 +10,10 @@ from beaker.middleware import SessionMiddleware
 from history_db import init_db, log_search, get_recent_searches
 from search_db import search_db
 
+import os
+print(">>> Running from:", os.path.abspath(__file__))
+print(">>> Working directory:", os.getcwd())
+
 ################################################################### GLOBAL VARIABLES
 global_keyword_dict = Counter() # keeps track of keywords and their occurances among all users
 paginated_results = []
@@ -88,6 +92,8 @@ def redirect_page():
 # Handle input form submission 
 @route('/search', method="GET")
 def formHandler():
+    print(">>> Using DB file at:", os.path.abspath("search_engine.db"))
+
     session = request.environ.get('beaker.session')
     keywords = request.query.get('keywords') # input from user
     keyword_dict = Counter() # keeping track of word occurance
