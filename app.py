@@ -10,10 +10,6 @@ from beaker.middleware import SessionMiddleware
 from history_db import init_db, log_search, get_recent_searches
 from search_db import search_db
 
-import os
-print(">>> Running from:", os.path.abspath(__file__))
-print(">>> Working directory:", os.getcwd())
-
 ################################################################### GLOBAL VARIABLES
 global_keyword_dict = Counter() # keeps track of keywords and their occurances among all users
 paginated_results = []
