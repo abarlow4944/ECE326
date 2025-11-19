@@ -112,5 +112,45 @@
         % end
     </div>
 
+    <!-- Autocomplete script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const input = document.getElementById("keywords"); // get the input box
+            const suggestionBox = document.createElement("div"); // create a suggestion box
+            suggestionBox.className = "autocomplete-box";
+            input.parentNode.appendChild(suggestionBox);
+
+            input.addEventListener("input", async () => {
+                const query = input.value.trim(); // remove whitespace
+
+                if (query.length === 0) { // no input
+                    suggestionBox.innerHTML = "";
+                    return;
+                }
+
+                const response = await fetch(`/autocomplete?q=${encodeURIComponent(query)}`);
+                const suggestions = await response.json();
+
+                suggestionBox.innerHTML = "";
+
+                suggestions.forEach(s => { // for each word in suggestions
+                    const div = document.createElement("div");
+                    div.className = "suggestion";
+                    div.textContent = s;
+                    div.onclick = () => {
+                        input.value = s;
+                        suggestionBox.innerHTML = "";
+                    };
+                    suggestionBox.appendChild(div);
+                });
+            });
+
+            // Hide suggestions on click elsewhere
+            document.addEventListener("click", () => {
+                suggestionBox.innerHTML = "";
+            });
+        });
+    </script>
+
 </body>
 </html>

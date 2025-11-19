@@ -48,3 +48,23 @@ def search_db(first_word: str, page: int, per_page: int = 5):
         })
 
     return results
+
+def getAllKnownWords():
+    """Return a list of all known words in the database."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    # Find words in lexicon
+    cur.execute("SELECT word FROM lexicon")
+    rows = cur.fetchall()
+
+    conn.close()
+
+    # format into a list
+    result = []
+
+    for r in rows:
+        result.append(r["word"])
+
+    return result

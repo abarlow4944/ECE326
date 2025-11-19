@@ -1,4 +1,4 @@
-from bottle import route, run, template, static_file, request, redirect, default_app
+from bottle import route, run, template, static_file, request, redirect, default_app, response
 from collections import Counter
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.client import flow_from_clientsecrets
@@ -8,7 +8,7 @@ import json
 import httplib2
 from beaker.middleware import SessionMiddleware
 from history_db import init_db, log_search, get_recent_searches
-from search_db import search_db
+from search_db import search_db, getAllKnownWords
 
 ################################################################### GLOBAL VARIABLES
 global_keyword_dict = Counter() # keeps track of keywords and their occurances among all users
@@ -88,7 +88,6 @@ def redirect_page():
 # Handle input form submission 
 @route('/search', method="GET")
 def formHandler():
-
     session = request.environ.get('beaker.session')
     keywords = request.query.get('keywords') # input from user
     keyword_dict = Counter() # keeping track of word occurance
@@ -120,6 +119,27 @@ def formHandler():
     # clear the URL to prevent resubmission
     response += '<script>if(window.history.replaceState){window.history.replaceState(null,null,"/");}</script>'
     return response
+
+
+# Autocomplete
+@route('/autocomplete')
+def autocomplete():
+    query = request.query.get('q').strip().lower() # input from user
+
+    if not query: # if there is no input
+        response.content_type = 'application/json'
+        return json.dumps([])
+
+    # get all known keywords
+    allWords = getAllKnownWords()
+
+    # filter those starting with the typed letters
+    suggestions = [word for word in allWords if word.lower().startswith(query)]
+
+    # limit suggestions to 5
+    suggestions = suggestions[:5]
+
+    return json.dumps(suggestions)
 
 
 # Log out

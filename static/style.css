@@ -166,3 +166,22 @@ span {
     text-align: center;
 }
 
+.autocomplete-box {
+    position: absolute;
+    background-color: white;
+    width: 365px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.suggestion {
+    padding: 8px;
+    cursor: pointer;
+    font-family: "Roboto", sans-serif;
+    font-size: 15px;
+}
+
+.suggestion:hover {
+    background-color: #f0f0f0;
+}
