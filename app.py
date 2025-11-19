@@ -88,7 +88,6 @@ def redirect_page():
 # Handle input form submission 
 @route('/search', method="GET")
 def formHandler():
-    print(">>> Using DB file at:", os.path.abspath("search_engine.db"))
 
     session = request.environ.get('beaker.session')
     keywords = request.query.get('keywords') # input from user
