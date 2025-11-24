@@ -120,7 +120,7 @@
             suggestionBox.className = "autocomplete-box";
             input.parentNode.appendChild(suggestionBox);
 
-            input.addEventListener("input", async () => {
+            input.addEventListener("input", async () => { //add an event listener that triggers when the input changes
                 const query = input.value.trim(); // remove whitespace
 
                 if (query.length === 0) { // no input
@@ -128,7 +128,7 @@
                     return;
                 }
 
-                const response = await fetch(`/autocomplete?q=${encodeURIComponent(query)}`);
+                const response = await fetch(`/autocomplete?q=${encodeURIComponent(query)}`); // make request to '/autocomplete' with the query
                 const suggestions = await response.json();
 
                 suggestionBox.innerHTML = "";
