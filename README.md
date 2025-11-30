@@ -87,3 +87,9 @@ ASSUMPTION: In this lab, we assume that URLs containing fragment identifiers (e.
 We implemented the page rank algorithm using the baseline implementation as basis by treating pages as nodes that could acquire weights. This heuristic allowed us to generate page ranks for each page. We were able to verify this with some simple node structures included in the unit tests to ensure the intended results. We simulated some configurations and checked for expected relative values. This will be used further in Lab 4
 
 We made use of SQLLite to store these values so the front end could easily access them when needed. This avoids the need to re-run the algoirthm each time.
+
+# ECE326 Lab 4
+NOTE: client_secret.json was included in the deployment script. Therefore, the Google login functionality does not work for this lab, which is deemed acceptable in the assignment instructions.
+
+To deploy: `python deploy.py aws_config.json`
+To terminate: `python terminate.py aws_config.json i-[instance ID]`
