@@ -202,7 +202,6 @@ def main():
     )
 
     # Install required packages using apt-get -y
-    # You can add/remove packages (e.g., python3-venv, nginx, etc.) as needed.
     install_cmd = (
         "sudo apt-get update -y && "
         "sudo apt-get install -y python3 python3-pip && "
