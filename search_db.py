@@ -5,7 +5,7 @@ from difflib import SequenceMatcher
 import sqlite3
 from difflib import SequenceMatcher
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'search_engine.db')
+DB_PATH = os.path.join(os.path.dirname(__file__), 'app_src/search_engine.db')
 #module-level cache dictionaries
 _fuzzy_cache = {}
 _lexicon = {}
@@ -359,3 +359,27 @@ def test_search_db():
 
 test_search_db()
 '''
+
+def test_search_outputs():
+    print("\n=== TESTING search_db ===")
+    res1 = search_db("hello world", page=1, per_page=5)
+    print("Type:", type(res1))
+    print("Length:", len(res1))
+    if res1:
+        print("First item keys:", list(res1[0].keys()))
+    print("Sample result:", res1[:2])
+
+    print("\n=== TESTING search_db_simple ===")
+    res2 = search_db_simple("hello", page=1, per_page=5)
+    print("Type:", type(res2))
+    print("Length:", len(res2))
+    if res2:
+        print("First item keys:", list(res2[0].keys()))
+    print("Sample result:", res2[:2])
+
+    print("\n=== COMPARISON ===")
+    print("Same type?:", type(res1) == type(res2))
+    print("Same element type?:", bool(res1 and res2 and isinstance(res1[0], dict) and isinstance(res2[0], dict)))
+    print("Same keys?:", (set(res1[0].keys()) == set(res2[0].keys())) if (res1 and res2) else "N/A")
+
+test_search_outputs()
