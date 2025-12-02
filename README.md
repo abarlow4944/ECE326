@@ -91,5 +91,6 @@ We made use of SQLLite to store these values so the front end could easily acces
 # ECE326 Lab 4
 NOTE: client_secret.json was included in the deployment script. Therefore, the Google login functionality does not work for this lab, which is deemed acceptable in the assignment instructions.
 
+Public DNS: http://ec2-3-80-89-86.compute-1.amazonaws.com:8080/
 To deploy: `python deploy.py aws_config.json`
 To terminate: `python terminate.py aws_config.json i-[instance ID]`

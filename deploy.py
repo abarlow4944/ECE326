@@ -16,8 +16,6 @@ def ensure_boto3():
         try:
             subprocess.check_call([sys.executable, "-m", "pip", "install", "boto3"])
         except Exception as e:
-            print("[ERROR] Failed to install boto3 automatically.")
-            print("        Please install it manually: pip install boto3")
             print("Details:", e)
             sys.exit(1)
 
@@ -115,7 +113,7 @@ def main():
     ssh_key_path = config.get("ssh_key_path")
     security_group_name = config.get("security_group_name")
     local_app_path = config.get("local_app_path", ".")
-    remote_app_path = config.get("remote_app_path", "/home/ubuntu/app")
+    remote_app_path = config.get("remote_app_path", "/home/ubuntu/app/app_src")
     startup_command = config.get("startup_command")
     exposed_port = config.get("exposed_port", 80)
 
@@ -201,14 +199,17 @@ def main():
         "Copy application files to remote instance"
     )
 
-    # Install required packages using apt-get -y
+    ## install dependencies
     install_cmd = (
         "sudo apt-get update -y && "
         "sudo apt-get install -y python3 python3-pip && "
-        "cd {app_path} && "
-        "if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi && "
+        # enter the folder that contains requirements.txt
+        "cd {app_path}/app_src && "
+        # install all dependencies
+        "pip3 install --user -r requirements.txt && "
         "{startup}"
     ).format(app_path=remote_app_path, startup=startup_command)
+
 
     run_cmd(
         ssh_base + [install_cmd],
