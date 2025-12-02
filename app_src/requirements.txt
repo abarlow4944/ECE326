@@ -2,8 +2,8 @@ bottle
 urllib3
 bs4
 requests
-oauth2client
-google-api-python-client
+//oauth2client
+//google-api-python-client
 httplib2
 beaker
 numpy
