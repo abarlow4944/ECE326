@@ -199,21 +199,50 @@ def main():
         "Copy application files to remote instance"
     )
 
-    ## install dependencies
+   # -----------------------------------------
+    # Install dependencies
+    # -----------------------------------------
     install_cmd = (
         "sudo apt-get update -y && "
         "sudo apt-get install -y python3 python3-pip && "
-        # enter the folder that contains requirements.txt
         "cd {app_path}/app_src && "
-        # install all dependencies
-        "pip3 install --user -r requirements.txt && "
-        "{startup}"
-    ).format(app_path=remote_app_path, startup=startup_command)
-
+        "pip3 install --user -r requirements.txt"
+    ).format(app_path=remote_app_path)
 
     run_cmd(
         ssh_base + [install_cmd],
-        "Install packages and start search engine"
+        "Install Python and dependencies"
+    )
+
+
+    # -----------------------------------------
+    # Copy systemd service file
+    # -----------------------------------------
+    run_cmd(
+        [
+            "scp",
+            "-o", "StrictHostKeyChecking=no",
+            "-i", ssh_key_path,
+            "app.service",
+            f"ubuntu@{public_ip}:/home/ubuntu/app/"
+        ],
+        "Copy systemd service file"
+    )
+
+
+    # -----------------------------------------
+    # Enable and start the systemd service
+    # -----------------------------------------
+    enable_service_cmd = (
+        "sudo mv /home/ubuntu/app/app.service /etc/systemd/system/app.service && "
+        "sudo systemctl daemon-reload && "
+        "sudo systemctl enable app.service && "
+        "sudo systemctl restart app.service"
+    )
+
+    run_cmd(
+        ssh_base + [enable_service_cmd],
+        "Enable and start systemd service"
     )
 
     print("\n[SUCCESS] Deployment complete!")

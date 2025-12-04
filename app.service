@@ -1,0 +1,14 @@
+[Unit]
+Description=My Python App
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/app/app_src
+ExecStart=/usr/bin/python3 /home/ubuntu/app/app_src/app.py
+Restart=always
+StandardOutput=append:/home/ubuntu/app/app_src/app.log
+StandardError=append:/home/ubuntu/app/app_src/app.log
+
+[Install]
+WantedBy=multi-user.target
